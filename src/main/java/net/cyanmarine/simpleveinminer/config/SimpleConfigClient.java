@@ -1,33 +1,37 @@
 package net.cyanmarine.simpleveinminer.config;
 
-import me.lortseam.completeconfig.api.ConfigEntries;
-import me.lortseam.completeconfig.api.ConfigEntry;
-import me.lortseam.completeconfig.api.ConfigGroup;
-import me.shedaniel.math.Color;
-
-@ConfigEntries(includeAll = true)
+/**
+ * Client config. Extends the shared config so singleplayer worlds use the same file.
+ */
 public class SimpleConfigClient extends SimpleConfig {
     public int clientRadius = 1;
     public boolean showMiningProgress = true;
     public boolean showRestrictionMessages = true;
 
-    @ConfigEntry(comment = "Recommended: If you turn this on, turn restriction messages off and highlights on")
-    @ConfigEntry.Boolean(falseKey = "keybindToggles.value.false", trueKey = "keybindToggles.value.true")
+    /** Recommended: If you turn this on, turn restriction messages off and highlights on */
     public boolean keybindToggles = false;
-    @ConfigEntries.Exclude
-    public boolean changed = false;
+    public transient boolean changed = false;
 
-    @Transitive
     public Highlight highlight = new Highlight();
 
-    @Transitive
     public HudDisplay hudDisplay = new HudDisplay();
+
+    @Override
+    protected void fixNulls() {
+        super.fixNulls();
+        if (highlight == null) highlight = new Highlight();
+        if (highlight.mode == null) highlight.mode = Highlight.MODES.OUTLINE;
+        if (hudDisplay == null) hudDisplay = new HudDisplay();
+        if (hudDisplay.vertical_anchor == null) hudDisplay.vertical_anchor = HudDisplay.VERTICAL_ANCHOR.CENTER;
+        if (hudDisplay.horizontal_anchor == null) hudDisplay.horizontal_anchor = HudDisplay.HORIZONTAL_ANCHOR.CENTER;
+    }
 
     public void resetClient() {
         this.showMiningProgress = true;
         this.showRestrictionMessages = true;
         this.keybindToggles = false;
         this.highlight = new Highlight();
+        this.hudDisplay = new HudDisplay();
         this._save();
     }
 
@@ -56,8 +60,9 @@ public class SimpleConfigClient extends SimpleConfig {
         this._save();
     }
 
-    public void setColor(Color color) {
-        this.highlight.color = color;
+    /** @param color RGB color, e.g. 0xFFFFFF */
+    public void setColor(int color) {
+        this.highlight.color = color & 0xFFFFFF;
         this._save();
     }
 
@@ -76,34 +81,36 @@ public class SimpleConfigClient extends SimpleConfig {
         this._save();
     }
 
-    /*public void setOnlyExposed(boolean onlyExposed) {
-        this.highlight.onlyExposed = onlyExposed;
-        this._save();
-    }*/
     public void setHudShowCount(boolean showCount) {
         this.hudDisplay.showCount = showCount;
         this._save();
     }
+
     public void setHudShowBlock(boolean showBlock) {
         this.hudDisplay.showBlock = showBlock;
         this._save();
     }
+
     public void setHudX(int x) {
         this.hudDisplay.x = x;
         this._save();
     }
+
     public void setHudY(int y) {
         this.hudDisplay.y = y;
         this._save();
     }
+
     public void setHudVerticalAnchor(HudDisplay.VERTICAL_ANCHOR vertical_anchor) {
         this.hudDisplay.vertical_anchor = vertical_anchor;
         this._save();
     }
+
     public void setHudHorizontalAnchor(HudDisplay.HORIZONTAL_ANCHOR horizontal_anchor) {
         this.hudDisplay.horizontal_anchor = horizontal_anchor;
         this._save();
     }
+
     public void setHudBlockNumberSpacing(int blockNumberSpacing) {
         this.hudDisplay.blockNumberSpacing = blockNumberSpacing;
         this._save();
@@ -113,6 +120,7 @@ public class SimpleConfigClient extends SimpleConfig {
         this.save();
         this.changed = true;
     }
+
     public final boolean isChanged() {
         if (this.changed) {
             this.changed = false;
@@ -126,20 +134,15 @@ public class SimpleConfigClient extends SimpleConfig {
         this._save();
     }
 
-    @ConfigEntries(includeAll = true)
-    public static class Highlight implements ConfigGroup {
+    public static class Highlight {
         public boolean doHighlight = true;
-        @ConfigEntry.Color(alphaMode = false)
-        public Color color = Color.ofOpaque(0xFFFFFF);
-        @ConfigEntry.Slider(valueKey = "opacity.value")
-        @ConfigEntry.IntegerSliderInterval(1)
-        @ConfigEntry.BoundedInteger(min = 0, max = 100)
+        /** RGB color */
+        public int color = 0xFFFFFF;
+        /** 0 - 100 */
         public int opacity = 39;
         public MODES mode = MODES.OUTLINE;
         public boolean highlightAllSides = false;
-        // public boolean onlyExposed = false;
         public int updateRate = 20;
-
 
         public enum MODES {
             OUTLINE,
@@ -149,8 +152,7 @@ public class SimpleConfigClient extends SimpleConfig {
         }
     }
 
-    @ConfigEntries(includeAll = true)
-    public static class HudDisplay implements ConfigGroup {
+    public static class HudDisplay {
         public boolean showCount = true;
         public VERTICAL_ANCHOR vertical_anchor = VERTICAL_ANCHOR.CENTER;
         public HORIZONTAL_ANCHOR horizontal_anchor = HORIZONTAL_ANCHOR.CENTER;
@@ -164,6 +166,7 @@ public class SimpleConfigClient extends SimpleConfig {
             CENTER,
             BOTTOM
         }
+
         public enum HORIZONTAL_ANCHOR {
             LEFT,
             CENTER,

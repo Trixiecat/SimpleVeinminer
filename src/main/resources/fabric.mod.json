@@ -16,11 +16,11 @@
   "icon": "assets/simpleveinminer/icon.png",
   "environment": "*",
   "entrypoints": {
-    "client": [
-      "net.cyanmarine.simpleveinminer.client.SimpleVeinminerClient"
-    ],
     "main": [
       "net.cyanmarine.simpleveinminer.SimpleVeinminer"
+    ],
+    "client": [
+      "net.cyanmarine.simpleveinminer.client.SimpleVeinminerClient"
     ],
     "server": [
       "net.cyanmarine.simpleveinminer.server.SimpleVeinminerServer"
@@ -29,22 +29,13 @@
       "net.cyanmarine.simpleveinminer.client.ModMenuInit"
     ]
   },
-  "mixins": [
-    "simpleveinminer.mixins.json"
-  ],
-  "custom": {
-    "cardinal-components": [
-      "simpleveinminer:veinmining_shape"
-    ]
-  },
   "depends": {
-    "fabricloader": "*",
-    "fabric": "*",
-    "minecraft": "${minecraft_version}"
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}",
+    "java": ">=25"
   },
-  "suggests": {},
-  "includes": {
-    "completeconfig-base": "${completeconfig}",
-    "completeconfig-gui-cloth": "${completeconfig}"
+  "suggests": {
+    "modmenu": "*"
   }
 }

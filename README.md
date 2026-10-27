@@ -46,7 +46,7 @@ The mod works out of the box, but it has some config options you may find useful
 
 I suggest messing around with them a bit to find what fits you best
 
-The easiest way to do that is by using [Mod Menu](https://www.curseforge.com/minecraft/mc-mods/modmenu) and [Cloth Config](https://www.curseforge.com/minecraft/mc-mods/cloth-config), but both are optional
+Open the settings screen from [Mod Menu](https://modrinth.com/mod/modmenu) (optional), with the "Open veinminer settings" key (unbound by default, set it in Controls), or with `/veinminingclient config`. Settings are saved in `config/simpleveinminer.json`.
 
 # Commands
 The config options can also be changed using /veinmining or /veinminingclient

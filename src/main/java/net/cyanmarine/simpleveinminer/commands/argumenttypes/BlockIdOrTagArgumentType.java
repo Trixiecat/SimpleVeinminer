@@ -7,14 +7,14 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.block.Block;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.argument.BlockArgumentParser;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.blocks.BlockStateParser;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.block.Block;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,36 +22,37 @@ import java.util.concurrent.CompletableFuture;
 
 public class BlockIdOrTagArgumentType implements ArgumentType<String> {
     private static final Collection<String> EXAMPLES = Arrays.asList("stone", "minecraft:stone", "#stone", "#minecraft:stone");
-    private final RegistryWrapper<Block> registryWrapper;
+    private final HolderLookup<Block> blocks;
 
-    public BlockIdOrTagArgumentType(CommandRegistryAccess commandRegistryAccess) {
-        this.registryWrapper = commandRegistryAccess.createWrapper(RegistryKeys.BLOCK);
+    public BlockIdOrTagArgumentType(CommandBuildContext commandBuildContext) {
+        this.blocks = commandBuildContext.lookupOrThrow(Registries.BLOCK);
     }
 
-    public static String parse(RegistryWrapper<Block> registryWrapper, StringReader reader) throws CommandSyntaxException {
-        String res = BlockArgumentParser.blockOrTag(registryWrapper, reader, false).map((result) ->
-                        Registries.BLOCK.getKey(result.blockState().getBlock()).map(blockRegistryKey -> blockRegistryKey.getValue().toString()).orElse(null),
-                (result) ->
-                        result.tag().getTagKey().map(blockTagKey -> "#" + blockTagKey.id().toString()).orElse(null)
+    public static String parse(HolderLookup<Block> blocks, StringReader reader) throws CommandSyntaxException {
+        String res = BlockStateParser.parseForTesting(blocks, reader, false).map(
+                (result) -> BuiltInRegistries.BLOCK.getKey(result.blockState().getBlock()).toString(),
+                (result) -> result.tag().unwrapKey().map(tagKey -> "#" + tagKey.location()).orElse(null)
         );
-        if (res == null) throw new SimpleCommandExceptionType(Text.of("Invalid block")).createWithContext(reader);
+        if (res == null) throw new SimpleCommandExceptionType(Component.literal("Invalid block")).createWithContext(reader);
         return res;
     }
 
-    public static String getBlockIdOrTag(CommandContext<ServerCommandSource> context, String name) throws CommandSyntaxException {
+    public static String getBlockIdOrTag(CommandContext<CommandSourceStack> context, String name) throws CommandSyntaxException {
         return context.getArgument(name, String.class);
     }
 
-    public static BlockIdOrTagArgumentType blockIdOrTag(CommandRegistryAccess commandRegistryAccess) {
-        return new BlockIdOrTagArgumentType(commandRegistryAccess);
+    public static BlockIdOrTagArgumentType blockIdOrTag(CommandBuildContext commandBuildContext) {
+        return new BlockIdOrTagArgumentType(commandBuildContext);
     }
 
+    @Override
     public String parse(StringReader stringReader) throws CommandSyntaxException {
-        return parse(this.registryWrapper, stringReader);
+        return parse(this.blocks, stringReader);
     }
 
+    @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        return BlockArgumentParser.getSuggestions(this.registryWrapper, builder, true, false);
+        return BlockStateParser.fillSuggestions(this.blocks, builder, true, false);
     }
 
     @Override

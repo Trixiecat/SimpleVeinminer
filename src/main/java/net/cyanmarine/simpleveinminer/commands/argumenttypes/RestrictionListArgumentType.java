@@ -8,8 +8,8 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.cyanmarine.simpleveinminer.SimpleVeinminer;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,7 +21,7 @@ public class RestrictionListArgumentType implements ArgumentType<String> {
     public RestrictionListArgumentType() {
     }
 
-    public static java.lang.String getListMember(CommandContext<ServerCommandSource> context, java.lang.String name) throws CommandSyntaxException {
+    public static java.lang.String getListMember(CommandContext<CommandSourceStack> context, java.lang.String name) throws CommandSyntaxException {
         return context.getArgument(name, java.lang.String.class);
     }
 
@@ -40,7 +40,7 @@ public class RestrictionListArgumentType implements ArgumentType<String> {
         if (SimpleVeinminer.getConfig().restrictions.restrictionList.list.contains("minecraft:" + item))
             return "minecraft:" + item;
         if (SimpleVeinminer.getConfig().restrictions.restrictionList.list.contains(item)) return item;
-        throw new SimpleCommandExceptionType(Text.of("Invalid block: " + item)).createWithContext(reader);
+        throw new SimpleCommandExceptionType(Component.literal("Invalid block: " + item)).createWithContext(reader);
     }
 
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {

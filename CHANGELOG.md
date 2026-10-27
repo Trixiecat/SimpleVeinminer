@@ -15,6 +15,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
  -->
 
+## [v1.5.0]
+### Changed
+- Ported to Minecraft 26.3 / Fabric Loader 0.20.1 / Fabric API 0.165.0+26.3 (Java 25)
+- Uses Mojang's official names (Minecraft is no longer obfuscated, Yarn is gone)
+- Networking rewritten to use custom payloads
+- Block breaking now hooks Fabric's `PlayerBlockBreakEvents` instead of a mixin
+- Highlight, mining-progress and HUD rewritten on top of Fabric's level extraction events, gizmos and HUD element API (the old render mixins targeted code that no longer exists)
+- The game rule is now `simpleveinminer:do_server_side_veinmining`
+- Config is now plain JSON at `config/simpleveinminer.json`; highlight color is stored as an RGB number
+- Tag folders renamed to `tags/block` (required since 1.21)
+- Server spread limit is now synced to clients so the preview matches
+- Settings screen rebuilt with vanilla widgets (no Cloth Config / CompleteConfig needed). Open it from Mod Menu (optional), the "Open veinminer settings" key, or `/veinminingclient config`
+### Removed
+- CompleteConfig and Cloth Config dependencies (the mod now only needs Fabric API)
+### Fixed
+- `/veinmining restrictions list remove` could crash on the default list
+
 ## [v1.4.2]
 ### Added
 - Re-added cloth config integration

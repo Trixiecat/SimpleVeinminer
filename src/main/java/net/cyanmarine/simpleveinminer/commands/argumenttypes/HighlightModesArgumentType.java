@@ -8,8 +8,8 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.cyanmarine.simpleveinminer.config.SimpleConfigClient;
-import net.minecraft.command.CommandSource;
-import net.minecraft.text.Text;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.network.chat.Component;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -20,7 +20,7 @@ public class HighlightModesArgumentType implements ArgumentType<SimpleConfigClie
         return new HighlightModesArgumentType();
     }
 
-    public static <T extends CommandSource> SimpleConfigClient.Highlight.MODES getHighlightMode(CommandContext<T> context, java.lang.String name) throws CommandSyntaxException {
+    public static <T extends SharedSuggestionProvider> SimpleConfigClient.Highlight.MODES getHighlightMode(CommandContext<T> context, java.lang.String name) throws CommandSyntaxException {
         return context.getArgument(name, SimpleConfigClient.Highlight.MODES.class);
     }
 
@@ -36,7 +36,7 @@ public class HighlightModesArgumentType implements ArgumentType<SimpleConfigClie
         try {
             return SimpleConfigClient.Highlight.MODES.valueOf(item.toUpperCase());
         } catch (Exception e) {
-            throw new SimpleCommandExceptionType(Text.of("Invalid mode: " + item)).createWithContext(reader);
+            throw new SimpleCommandExceptionType(Component.literal("Invalid mode: " + item)).createWithContext(reader);
         }
     }
 
